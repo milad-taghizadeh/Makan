@@ -1,4 +1,5 @@
 import { INestApplication } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export function swaggerConfigInit(app: INestApplication): void {
@@ -9,6 +10,9 @@ export function swaggerConfigInit(app: INestApplication): void {
     .addTag('TEST')
     .build();
 
+  const configService = app.get(ConfigService);
+  const swaggerEP = configService.get('App.SWAGGER_ENDPOINT');
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup(process.env.SWAGGER_ENDPOINT, app, document);
+  SwaggerModule.setup(swaggerEP, app, document);
 }
