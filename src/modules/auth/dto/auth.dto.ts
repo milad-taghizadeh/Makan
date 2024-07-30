@@ -1,15 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsPhoneNumber, IsString, Length } from 'class-validator';
+import { AuthType } from '../enums/type.enum';
+import { AuthMethod } from '../enums/method.enum';
+import { IsEnum, IsString, Length } from 'class-validator';
 
 export class AuthDto {
-  @ApiProperty({
-    description: 'it should be a valid phone number',
-    example: '+989123456789',
-    nullable: false,
-  })
-  @IsNotEmpty()
-  @IsPhoneNumber('IR')
+  @ApiProperty()
   @IsString()
-  @Length(10, 13)
-  phone: string;
+  @Length(3, 100)
+  username: string;
+  @ApiProperty({ enum: AuthType })
+  @IsEnum(AuthType)
+  type: string;
+  @ApiProperty({ enum: AuthMethod })
+  @IsEnum(AuthMethod)
+  method: AuthMethod;
+}
+export class CheckOtpDto {
+  @ApiProperty()
+  @IsString()
+  @Length(5, 5)
+  code: string;
 }
