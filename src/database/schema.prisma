@@ -13,23 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id               String   @id @default(uuid())
-  username         String?  @map("username")
-  nick_name        String?  @map("nick_name")
-  bio              String?
-  gender           String?
-  image_profile    String?
-  bg_image         String?
-  birthday         String?
-  linkedin_profile String?
-  email            String?  @unique
-  phone            String?  @unique
-  password         String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  Otp              Otp[]
-}
+
 
 model Otp {
   id        String   @id @default(uuid())
@@ -41,7 +25,129 @@ model Otp {
   updatedAt DateTime @updatedAt
 }
 
-enum Gender {
-  MALE
-  FEMALE
+model Users {
+  id       String   @id @default(cuid())
+  name     String
+  email    String   @unique
+  password String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@map("users")
+}
+
+model Agents {
+  id       String   @id @default(cuid())
+  name     String
+  email    String   @unique
+  password String
+  bio      String
+  company  String
+  phone    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@map("agents")
+}
+
+model Admins {
+  id       String   @id @default(cuid())
+  name     String
+  email    String   @unique
+  password String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@map("admins")
+}
+
+model Properties {
+  id               String   @id @default(cuid())
+  title            String
+  description      String
+  price            Decimal
+  address          String
+  city             String
+  state            String
+  zip              String
+  type             String
+  status           String
+  listingDate      DateTime
+  listingPrice     Decimal
+  agent           Agents  @relation(fields: [agentId], references: [id])
+  agentId         String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now())
+  bedrooms         Int
+  bathrooms        Int
+  squareFootage    Int
+  lotSize          Int
+  yearBuilt        Int
+  propertyType     String
+  architectureStyle String
+  latitude         Decimal
+  longitude        Decimal
+
+  @@map("properties")
+}
+
+model Favorites {
+  id         String   @id @default(cuid())
+  user       Users    @relation(fields: [userId], references: [id])
+  userId     String
+  property   Properties @relation(fields: [propertyId], references: [id])
+  propertyId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+
+  @@map("favorites")
+}
+
+model Requests {
+  id         String   @id @default(cuid())
+  status     String
+  user       Users    @relation(fields: [userId], references: [id])
+  userId     Int
+  address    String
+  city       String
+  state      String
+  rooms      Int
+  latitude   Decimal
+  longitude  Decimal
+  agent      Agents  @relation(fields: [agentId], references: [id])
+  agentId    Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+
+  @@map("requests")
+}
+
+model Features {
+  id          String   @id @default(cuid())
+  featureType FeatureType
+  featureName String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  @@map("features")
+}
+
+enum FeatureType {
+  INTERIOR
+  EXTERIOR
+  AMENITY
+  OTHER
+}
+
+model PropertyFeatures {
+  id         String   @id @default(cuid())
+  property   Properties @relation(fields: [propertyId], references: [id])
+  propertyId Int
+  feature    Features @relation(fields: [featureId], references: [id])
+  featureId  Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+
+  @@map("property_features")
 }
