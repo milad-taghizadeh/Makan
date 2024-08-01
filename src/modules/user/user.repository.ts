@@ -13,7 +13,7 @@ export class UserRepository implements Repository<User> {
     private readonly prismaService: PrismaService
   ) { }
 
-  async create(data: User): Promise<User> {
+  async create(data: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<User> {
     return await this.prismaService.user.create({
       data: {
         ...data,
@@ -68,3 +68,4 @@ export class UserRepository implements Repository<User> {
     })
   }
 }
+
