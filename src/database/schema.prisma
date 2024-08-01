@@ -14,129 +14,170 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  username  String?     @map("username")
-  email     String?     @unique
-  phone     String?     @unique
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id        String   @id @default(uuid()) @db.Uuid
+  username  String?
+  email     String?  @unique
+  phone     String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt()
+
   Otp       Otp[]
   Favorites Favorites[]
   Requests  Requests[]
+
+  @@map("user")
 }
 
 model Otp {
-  id        String   @id @default(uuid())
+  id        String   @id @default(uuid()) @db.Uuid
   owner     User     @relation(fields: [userId], references: [id])
-  userId    String
+  userId    String   @db.Uuid
   code      String
   expiresIn DateTime @map("expiresIn") @db.Timestamp(5)
+
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("otp")
 }
 
 model Agents {
-  id            String       @id @default(cuid())
+  id            String  @id @default(uuid()) @db.Uuid
   name          String
-  email         String       @unique
-  facePic       String       @map("face_pic")
-  nationalCode  Int          @map("national_code")
-  IDCardPicture String       @map("id_card_picture")
+  email         String  @unique
+  facePic       String  @map("face_pic")
+  nationalCode  String  @map("national_code")
+  IDCardPicture String  @map("id_card_picture")
   bio           String?
   company       String?
   phone         String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @default(now())
-  Properties    Properties[]
-  Requests      Requests[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  Properties Properties[]
+  Requests   Requests[]
 
   @@map("agents")
 }
 
 model Admins {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
+  id       String @id @default(cuid()) @db.Uuid
+  name     String
+  username String @unique
+  password String
+
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@map("admins")
 }
 
 model Properties {
-  id                String             @id @default(cuid())
-  title             String
-  description       String
-  price             Decimal
-  address           String
-  city              String
-  state             String
-  zip               String
-  type              String
-  status            String
-  listingDate       DateTime
-  listingPrice      Decimal
-  agent             Agents             @relation(fields: [agentId], references: [id])
-  agentId           String
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @default(now())
-  bedrooms          Int
-  bathrooms         Int
+  id String @id @default(cuid()) @db.Uuid
+
+  title       String
+  description String
+  price       BigInt
+
+  address  String //TODO: addres relation
+  city     String
+  state    String
+  zip      String
+  location Json
+
+  type   PropertyType
+  status PropertyStatus
+
+  listingDate  DateTime
+  listingPrice BigInt
+
+  agentId   String @db.Uuid
+  bedrooms  Int
+  bathrooms Int
+
   squareFootage     Int
   lotSize           Int
   yearBuilt         Int
   propertyType      String
   architectureStyle String
-  latitude          Decimal
-  longitude         Decimal
-  Favorites         Favorites[]
-  PropertyFeatures  PropertyFeatures[]
+
+  agent            Agents             @relation(fields: [agentId], references: [id])
+  Favorites        Favorites[]
+  PropertyFeatures PropertyFeatures[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@map("properties")
 }
 
 model Favorites {
-  id         String     @id @default(cuid())
-  user       User       @relation(fields: [userId], references: [id])
-  userId     String
-  property   Properties @relation(fields: [propertyId], references: [id])
-  propertyId String
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @default(now())
+  id String @id @default(uuid()) @db.Uuid
+
+  userId     String @db.Uuid
+  propertyId String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  property Properties @relation(fields: [propertyId], references: [id])
+  user     User       @relation(fields: [userId], references: [id])
 
   @@map("favorites")
 }
 
 model Requests {
-  id        String   @id @default(cuid())
-  status    String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  address   String
-  city      String
-  state     String
-  rooms     Int
-  latitude  Decimal
-  longitude Decimal
-  agent     Agents   @relation(fields: [agentId], references: [id])
-  agentId   String
+  id String @id @default(uuid()) @db.Uuid
+
+  status   RequestStatus
+  address  String
+  city     String
+  state    String
+  rooms    Int
+  location Json
+  userId   String        @db.Uuid
+  agentId  String?       @db.Uuid
+
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  user  User    @relation(fields: [userId], references: [id])
+  agent Agents? @relation(fields: [agentId], references: [id])
 
   @@map("requests")
 }
 
 model Features {
-  id               String             @id @default(cuid())
-  featureType      FeatureType
-  featureName      String
-  description      String
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @default(now())
+  id String @id @default(uuid()) @db.Uuid
+
+  featureType FeatureType
+  featureName String
+  description String
+
+  //TODO : images
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
   PropertyFeatures PropertyFeatures[]
 
   @@map("features")
+}
+
+model PropertyFeatures {
+  id String @id @default(uuid()) @db.Uuid
+
+  propertyId String @db.Uuid
+  featureId  String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  feature  Features   @relation(fields: [featureId], references: [id])
+  property Properties @relation(fields: [propertyId], references: [id])
+
+  @@map("property_features")
 }
 
 enum FeatureType {
@@ -146,14 +187,20 @@ enum FeatureType {
   OTHER
 }
 
-model PropertyFeatures {
-  id         String     @id @default(cuid())
-  property   Properties @relation(fields: [propertyId], references: [id])
-  propertyId String
-  feature    Features   @relation(fields: [featureId], references: [id])
-  featureId  String
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @default(now())
+enum PropertyType {
+  RENT
+  SALE
+  MORTGAGE
+}
 
-  @@map("property_features")
+enum RequestStatus {
+  PENDING
+  CANCELED
+  EXPIRED
+  DONE
+}
+
+enum PropertyStatus {
+  SOLD
+  OPEN
 }
