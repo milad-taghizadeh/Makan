@@ -41,6 +41,13 @@ export class OtpRepository implements Repository<Otp> {
     })
   }
 
+  async findByPhone(phoneNumber: string): Promise<Otp> {
+    return await this.prismaService.otp.findFirst({
+      where: {
+        phoneNumber
+      }
+    })
+  }
 
   async findLastOtp(phone: string, code: string): Promise<Otp> {
     return await this.prismaService.otp.findFirst({

@@ -19,7 +19,15 @@ export class AuthService {
   ) { }
 
   async sendOtp(data: SendOtpDto) {
-    const code = Math.floor(Math.random() * 99999)
+
+  const existingOtp = await this.otpRepository.findByPhone(data.phone);
+
+  if (existingOtp && existingOtp.expiresIn > new Date()) {
+    return existingOtp.code;
+  }
+
+
+    const code = Math.floor(Math.random() * 90000) + 10000;
 
     const otp = await this.otpRepository.create({
       code: String(code),
