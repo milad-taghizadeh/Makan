@@ -1,22 +1,19 @@
-import {
-  BadRequestException,
-  Injectable,
-  Scope,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, Scope } from '@nestjs/common';
 
 import { TokenService } from './token.service';
 import { UserRepository } from '../user/user.repository';
 import { OtpRepository } from './otp.repository';
 import { CheckOtpDto, SendOtpDto } from './dto/auth.dto';
 import { User } from '@prisma/client';
+import { AuthMessage } from './messages/auth.messages';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly otpRepository: OtpRepository,
-    private tokenService: TokenService
-  ) { }
+    private tokenService: TokenService,
+  ) {}
 
   async sendOtp(data: SendOtpDto) {
 
@@ -34,28 +31,35 @@ export class AuthService {
       code: String(code),
       expiresIn: new Date(Date.now() + TWO_MINUTES),
       isUsed: false,
-      phoneNumber: data.phone
-    })
+      phoneNumber: data.phone,
+    });
 
-    //TODO send otp
-    return otp.code
+
+    // if (otp.code && otp.expiresIn > new Date() && otp.isUsed === false) {
+    //   throw new BadRequestException(AuthMessage.WAIT_FOR_EXPIRE);
+    // }
+    //TODO send otp via sms
+    return otp.code;
   }
 
   async confirmOtp(data: CheckOtpDto) {
-    const dbOtp = await this.otpRepository.findLastOtp(data.phoneNumber, data.code)
+    const dbOtp = await this.otpRepository.findLastOtp(
+      data.phoneNumber,
+      data.code,
+    );
 
-    if (!dbOtp || dbOtp.expiresIn < new Date) {
-      throw new BadRequestException("otp not valid!")
+    if (!dbOtp || dbOtp.expiresIn < new Date()) {
+      throw new BadRequestException(AuthMessage.INVALID_OTP_CODE);
     }
 
-    await this.otpRepository.update(dbOtp.id, { isUsed: true })
+    await this.otpRepository.update(dbOtp.id, { isUsed: true });
 
-    const user = await this.userRepository.findByPhone(data.phoneNumber)
+    const user = await this.userRepository.findByPhone(data.phoneNumber);
     if (user) {
-      return this.tokenService.createOtpToken({ UserId: user.id })
+      return this.tokenService.createOtpToken({ UserId: user.id });
     } else {
-      const user = await this.register(data.phoneNumber)
-      return this.tokenService.createOtpToken({ UserId: user.id })
+      const user = await this.register(data.phoneNumber);
+      return this.tokenService.createOtpToken({ UserId: user.id });
     }
   }
 
@@ -65,6 +69,6 @@ export class AuthService {
       email: null,
       firstname: null,
       lastName: null,
-    })
+    });
   }
 }
