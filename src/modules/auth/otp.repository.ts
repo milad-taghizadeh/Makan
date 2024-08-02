@@ -45,6 +45,9 @@ export class OtpRepository implements Repository<Otp> {
     return await this.prismaService.otp.findFirst({
       where: {
         phoneNumber
+      },
+      orderBy: {
+        expiresIn: 'desc'
       }
     })
   }
