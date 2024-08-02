@@ -34,10 +34,6 @@ export class AuthService {
       phoneNumber: data.phone,
     });
 
-
-    // if (otp.code && otp.expiresIn > new Date() && otp.isUsed === false) {
-    //   throw new BadRequestException(AuthMessage.WAIT_FOR_EXPIRE);
-    // }
     //TODO send otp via sms
     return otp.code;
   }
