@@ -28,10 +28,11 @@ export class AuthService {
 
 
     const code = Math.floor(Math.random() * 90000) + 10000;
+    const TWO_MINUTES = 2 * 60 * 1000;
 
     const otp = await this.otpRepository.create({
       code: String(code),
-      expiresIn: new Date(Date.now() + 2 * 60 * 60 * 1000),
+      expiresIn: new Date(Date.now() + TWO_MINUTES),
       isUsed: false,
       phoneNumber: data.phone
     })
