@@ -16,6 +16,6 @@ export class RequestController {
 
   @Post()
   create(@Body() newRequestDto: NewRequestDto) {
-    return this.requestService.create(newRequestDto);
+    //return this.requestService.create(newRequestDto);
   }
 }
