@@ -13,15 +13,16 @@ export class AuthService {
     private readonly userRepository: UserRepository,
     private readonly otpRepository: OtpRepository,
     private tokenService: TokenService,
-  ) {}
+  ) { }
 
   async sendOtp(data: SendOtpDto) {
 
-  const existingOtp = await this.otpRepository.findByPhone(data.phone);
+    const existingOtp = await this.otpRepository.findByPhone(data.phone);
 
-  if (existingOtp && existingOtp.expiresIn > new Date()) {
-    return existingOtp.code;
-  }
+    console.log(existingOtp);
+    if (existingOtp && existingOtp.createdAt > new Date(Date.now() - 2 * 60 * 1000)) {
+      throw new BadRequestException("retry latter.")
+    }
 
 
     const code = Math.floor(Math.random() * 90000) + 10000;

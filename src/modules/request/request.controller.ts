@@ -12,10 +12,10 @@ import { NewRequestDto } from './dto/request.dto';
 
 @Controller('request')
 export class RequestController {
-  constructor(private readonly requestService: RequestService) {}
+  constructor(private readonly requestService: RequestService) { }
 
   @Post()
   create(@Body() newRequestDto: NewRequestDto) {
-    return this.requestService.sendRequest(newRequestDto);
+    return this.requestService.create(newRequestDto);
   }
 }
