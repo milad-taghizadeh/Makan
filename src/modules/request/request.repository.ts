@@ -6,8 +6,11 @@ import { PrismaService } from 'src/database/database.service';
 @Injectable()
 export class RequestRepository implements Repository<Requests> {
 
-    constructor(private readonly prismaService: PrismaService) { }
-    async create(data: Omit<Requests, "id" | "createdAt" | "updatedAt">): Promise<Requests> {
+    constructor(
+        private readonly prismaService: PrismaService
+    ) { }
+
+    async create(data: Omit<Requests, "id" | "createdAt" | "updatedAt" | "agentId">): Promise<Requests> {
         return await this.prismaService.requests.create({
             data: {
                 ...data
@@ -34,16 +37,15 @@ export class RequestRepository implements Repository<Requests> {
         })
     }
 
-    async deleteById(id: string): Promise<Requests> {
-        return await this.prismaService.requests.delete({
-            where: {
-                id
-            }
-        })
-    }
+    // async deleteById(id: string): Promise<Requests> {
+    //     return await this.prismaService.requests.delete({
+    //         where: {
+    //             id
+    //         }
+    //     })
+    // }
 
     async findByStatus(status: $Enums.RequestStatus): Promise<Requests[]> {
-        // FIXME: fix this error
         return await this.prismaService.requests.findMany({
             where: {
                 status
@@ -51,6 +53,20 @@ export class RequestRepository implements Repository<Requests> {
             orderBy: {
                 createdAt: 'desc'
             }
+        })
+    }
+
+    async indexUserRequests(userId: string) {
+        return await this.prismaService.requests.findMany({
+            where: {
+                userId,
+            },
+            include: {
+                agent: true,
+            },
+            orderBy: {
+                createdAt: "desc"
+            },
         })
     }
 
