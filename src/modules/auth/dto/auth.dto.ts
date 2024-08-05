@@ -22,6 +22,6 @@ export class CheckOtpDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  @Length(4, 4)
+  @Length(5, 5)
   code: string;
 }
