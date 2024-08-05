@@ -1,5 +1,5 @@
-import { Injectable, Req, Res, UnauthorizedException } from '@nestjs/common';
-import {NewRequestDto } from './dto/request.dto';
+import { ForbiddenException, Injectable, Req, Res, UnauthorizedException } from '@nestjs/common';
+import { NewRequestDto } from './dto/request.dto';
 import { RequestRepository } from './request.repository';
 import { Request, Response } from 'express';
 
@@ -7,18 +7,47 @@ import { Request, Response } from 'express';
 export class RequestService {
   constructor(
     private readonly requestRepository: RequestRepository,
-  ){}
+  ) { }
 
-  async sendRequest(newRequestDto: NewRequestDto) {
-    return null
+
+  async sendRequest(userId: string, newRequestDto: NewRequestDto) {
+    return await this.requestRepository.create({
+      ...newRequestDto,
+      userId,
+      status: 'PENDING',
+      location: JSON.parse(JSON.stringify(newRequestDto.location))
+    })
   }
 
-  async getUserId(@Req() req: Request){
-    const accessToken = req.cookies
-    if (!accessToken) {
-      return new UnauthorizedException('err, unauthorized');
+
+  async acceptRequest(id: string, agentId: string) {
+    return await this.requestRepository.update(id, {
+      agentId,
+      status: "DONE"
+    })
+  }
+
+  async cancelRequest(id: string, userId: string) {
+    const request = await this.requestRepository.findById(id)
+    if (request.userId != userId) {
+      throw new ForbiddenException("you cant access this request")//TODO farsi
     }
 
+    return await this.requestRepository.update(id, {
+      status: 'CANCELED'
+    })
+  }
+
+  // async deleteRequest(id: string) {
+  //   return await this.requestRepository.deleteById(id)
+  // }
+
+  async indexUserRequests(userId: string) {
+    return await this.requestRepository.indexUserRequests(userId)
+  }
+
+  async getReqById(id: string) {
+    return await this.requestRepository.findById(id)
   }
 
 }
