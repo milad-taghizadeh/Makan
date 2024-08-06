@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AuthType } from '../enums/type.enum';
-import { AuthMethod } from '../enums/method.enum';
+import { AuthUserType } from '../enums/user-type.enum';
 import { IsEnum, IsNotEmpty, IsPhoneNumber, IsString, Length } from 'class-validator';
 
 export class SendOtpDto {
+
   @ApiProperty()
   @IsPhoneNumber("IR")
   @IsNotEmpty()
@@ -24,4 +25,10 @@ export class CheckOtpDto {
   @IsNotEmpty()
   @Length(5, 5)
   code: string;
+
+  @ApiProperty({enum:AuthUserType})
+  @IsNotEmpty()
+  @IsString()
+  @IsEnum(AuthUserType)
+  userType: AuthUserType
 }
