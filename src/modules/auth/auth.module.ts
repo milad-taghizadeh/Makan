@@ -8,6 +8,7 @@ import { OtpRepository } from './otp.repository';
 import { UserRepository } from '../user/user.repository';
 import { VerifyToken } from 'src/common/middlewares/verify-token.middleware';
 import { ConfigService } from '@nestjs/config';
+import { AgentRepository } from '../agent/agent.repository';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { ConfigService } from '@nestjs/config';
     PrismaService,
     TokenService,
     OtpRepository,
-    UserRepository
+    UserRepository,
+    AgentRepository
   ],
 })
 export class AuthModule {
