@@ -49,6 +49,7 @@ export class RequestService {
   // async deleteRequest(id: string) {
   //   return await this.requestRepository.deleteById(id)
   // }
+  // TODO: add expiring request feature
 
   async indexUserRequests(userId: string) {
     return await this.requestRepository.indexUserRequests(userId)
