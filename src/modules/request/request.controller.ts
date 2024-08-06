@@ -13,13 +13,17 @@ import { NewRequestDto } from './dto/request.dto';
 import { User } from 'src/common/decorators/user.decorator';
 import { CookiePayload } from '../auth/types/payload';
 import { JwtGuard } from 'src/common/guards/auth.guard';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { SwaggerConsumes } from 'src/common/enums/swagger.consumes.enum';
 
 @Controller('request')
+@ApiTags('Request')
 @UseGuards(JwtGuard)
 export class RequestController {
   constructor(private readonly requestService: RequestService) { }
 
-  @Post()
+  @Post('new-request')
+  @ApiConsumes(SwaggerConsumes.urlEncoded, SwaggerConsumes.Json)
   sendRequest(
     @User() user: CookiePayload,
     @Body() newRequestDto: NewRequestDto
