@@ -1,3 +1,4 @@
 export type CookiePayload = {
-  UserId: string;
+  UserId?: string;
+  AgentId?: string
 };
