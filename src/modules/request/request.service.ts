@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable, Req, Res, UnauthorizedException } from 
 import { NewRequestDto } from './dto/request.dto';
 import { RequestRepository } from './request.repository';
 import { Request, Response } from 'express';
+import { RequestMessages } from './messages/request.messages';
 
 @Injectable()
 export class RequestService {
@@ -19,7 +20,6 @@ export class RequestService {
     })
   }
 
-
   async acceptRequest(id: string, agentId: string) {
     return await this.requestRepository.update(id, {
       agentId,
@@ -30,7 +30,7 @@ export class RequestService {
   async cancelRequest(id: string, userId: string) {
     const request = await this.requestRepository.findById(id)
     if (request.userId != userId) {
-      throw new ForbiddenException("you cant access this request")//TODO farsi
+      throw new ForbiddenException(RequestMessages.FORBIDDEN_REQUEST)
     }
 
     return await this.requestRepository.update(id, {
