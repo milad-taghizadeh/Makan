@@ -1,8 +1,8 @@
-import { ForbiddenException, Injectable, Req, Res, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { NewRequestDto } from './dto/request.dto';
 import { RequestRepository } from './request.repository';
 import { Request, Response } from 'express';
-import { RequestMessages } from './messages/request.messages';
+import { AcceptRequestMessages, CancelRequestMessages, RequestMessages } from './messages/request.messages';
 
 @Injectable()
 export class RequestService {
@@ -21,10 +21,15 @@ export class RequestService {
   }
 
   async acceptRequest(id: string, agentId: string) {
-    return await this.requestRepository.update(id, {
+    const status = (await this.requestRepository.findById(id)).status;
+    if (status == "CANCELED") throw new BadRequestException(AcceptRequestMessages.BADREQUEST_STATUS_CANCELED_ACCEPT_REQUEST);
+    if (status == "EXPIRED") throw new BadRequestException(AcceptRequestMessages.BADREQUEST_STATUS_EXPIRED_ACCEPT_REQUEST);
+    if (status == "DONE") throw new BadRequestException(AcceptRequestMessages.BADREQUEST_STATUS_DONE_ACCEPT_REQUEST)
+    const acceptRequest = await this.requestRepository.update(id, {
       agentId,
       status: "DONE"
     })
+    return acceptRequest;
   }
 
   async cancelRequest(id: string, userId: string) {
@@ -33,6 +38,9 @@ export class RequestService {
       throw new ForbiddenException(RequestMessages.FORBIDDEN_REQUEST)
     }
 
+    if (request.status == "CANCELED") throw new BadRequestException(CancelRequestMessages.BADREQUEST_STATUS_CANCELED_CANCEL_REQUEST);
+    if (request.status == "EXPIRED") throw new BadRequestException(CancelRequestMessages.BADREQUEST_STATUS_EXPIRED_CANCEL_REQUEST);
+    // TODO: cancel an accepted request
     return await this.requestRepository.update(id, {
       status: 'CANCELED'
     })
