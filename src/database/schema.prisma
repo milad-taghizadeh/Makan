@@ -48,14 +48,14 @@ model Otp {
 
 model Agents {
   id            String  @id @default(uuid()) @db.Uuid
-  name          String
-  email         String  @unique
-  facePic       String  @map("face_pic")
-  nationalCode  String  @map("national_code")
-  IDCardPicture String  @map("id_card_picture")
+  name          String?
+  email         String?  @unique
+  facePic       String?  @map("face_pic")
+  nationalCode  String?  @map("national_code")
+  IDCardPicture String?  @map("id_card_picture")
   bio           String?
   company       String?
-  phone         String
+  phone         String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
