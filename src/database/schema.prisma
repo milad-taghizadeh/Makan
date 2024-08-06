@@ -49,13 +49,13 @@ model Otp {
 model Agents {
   id            String  @id @default(uuid()) @db.Uuid
   name          String?
-  email         String?  @unique
-  facePic       String?  @map("face_pic")
-  nationalCode  String?  @map("national_code")
-  IDCardPicture String?  @map("id_card_picture")
+  email         String? @unique
+  facePic       String? @map("face_pic")
+  nationalCode  String? @map("national_code")
+  IDCardPicture String? @map("id_card_picture")
   bio           String?
   company       String?
-  phone         String @unique
+  phone         String  @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -133,16 +133,16 @@ model Favorites {
 }
 
 model Requests {
-  id String @id @default(uuid()) @db.Uuid
-
-  status   RequestStatus
-  address  String
-  city     String
-  state    String
-  rooms    Int
-  location Json
-  userId   String        @db.Uuid
-  agentId  String?       @db.Uuid
+  id            String        @id @default(uuid()) @db.Uuid
+  status        RequestStatus
+  address       String
+  squareFootage String        @map("square-footage")
+  city          String
+  state         String
+  rooms         Int
+  location      Json
+  userId        String        @db.Uuid
+  agentId       String?       @db.Uuid
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
