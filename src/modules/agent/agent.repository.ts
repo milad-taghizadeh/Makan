@@ -11,11 +11,11 @@ export class AgentRepository implements Repository<Agents> {
     private readonly prismaService: PrismaService
   ) { }
 
-  async create(data: Agents): Promise<Agents> {
+  async create(data: Omit<Agents, "id" | "createdAt" | "updatedAt">): Promise<Agents> {
     return await this.prismaService.agents.create({
       data: {
+        ...data,
         id: uuid(),
-        ...data
       }
     })
   }
@@ -35,6 +35,17 @@ export class AgentRepository implements Repository<Agents> {
     return await this.prismaService.agents.findUnique({
       where: {
         id
+      },
+      include: {
+        Requests: true
+      }
+    })
+  }
+
+  async findByPhone(phone: string): Promise<Agents> {
+    return await this.prismaService.agents.findUnique({
+      where: {
+        phone
       },
       include: {
         Requests: true
