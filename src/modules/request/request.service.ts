@@ -16,7 +16,7 @@ export class RequestService {
       ...newRequestDto,
       userId,
       status: 'PENDING',
-      location: JSON.parse(JSON.stringify(newRequestDto.location))
+      location: JSON.parse(JSON.stringify(newRequestDto.location)),
     })
   }
 

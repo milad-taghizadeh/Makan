@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PropertyType } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsPhoneNumber, IsNotEmpty, IsString, Length, IsJSON, IsObject, IsNumber, ValidateNested } from 'class-validator';
+import { IsPhoneNumber, IsNotEmpty, IsString, Length, IsJSON, IsObject, IsNumber, ValidateNested, IsEnum } from 'class-validator';
 
 
 
@@ -22,6 +23,11 @@ export class NewRequestDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  @IsNumber()
+  squareFootage: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   city: string;
 
@@ -33,6 +39,11 @@ export class NewRequestDto {
   @ApiProperty()
   @IsNotEmpty()
   rooms: number;
+
+  @ApiProperty({enum: PropertyType})
+  @IsEnum(PropertyType)
+  @IsNotEmpty()
+  type:PropertyType;
 
   @ApiProperty()
   @IsObject()

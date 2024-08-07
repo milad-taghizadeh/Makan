@@ -56,7 +56,18 @@ export class RequestRepository implements Repository<Requests> {
         })
     }
 
-    async indexUserRequests(userId: string) {
+    async indexAgentRequests(agentId: string): Promise<Requests[]> {
+        return await this.prismaService.requests.findMany({
+            where: {
+                agentId
+            },
+            orderBy:{
+                createdAt: "desc"
+            }
+        })
+    }
+
+    async indexUserRequests(userId: string): Promise<Requests[]> {
         return await this.prismaService.requests.findMany({
             where: {
                 userId,
