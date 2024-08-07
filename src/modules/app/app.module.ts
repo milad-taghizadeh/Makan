@@ -10,6 +10,7 @@ import { AuthModule } from '../auth/auth.module';
 import { join } from 'path';
 import { AgentModule } from '../agent/agent.module';
 import { RequestModule } from '../request/request.module';
+import { PropertyModule } from '../property/property.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RequestModule } from '../request/request.module';
     RequestModule,
     UserModule,
     AgentModule,
+    PropertyModule
   ],
   controllers: [AppController],
   providers: [AppService],

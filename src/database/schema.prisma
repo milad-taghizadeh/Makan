@@ -98,9 +98,10 @@ model Properties {
   listingDate  DateTime
   listingPrice BigInt
 
-  agentId   String @db.Uuid
-  bedrooms  Int
-  bathrooms Int
+  agentId    String @db.Uuid
+  requestsId String @db.Uuid
+  bedrooms   Int
+  bathrooms  Int
 
   squareFootage     Int //details
   lotSize           Int
@@ -109,6 +110,7 @@ model Properties {
   architectureStyle String
 
   agent            Agents             @relation(fields: [agentId], references: [id])
+  request          Requests           @relation(fields: [requestsId], references: [id])
   Favorites        Favorites[]
   PropertyFeatures PropertyFeatures[]
 
@@ -134,22 +136,24 @@ model Favorites {
 }
 
 model Requests {
-  id String @id @default(uuid()) @db.Uuid
-
-  status   RequestStatus
-  address  String
-  city     String
-  state    String
-  rooms    Int
-  location Json
-  userId   String        @db.Uuid
-  agentId  String?       @db.Uuid
+  id            String        @id @default(uuid()) @db.Uuid
+  status        RequestStatus
+  address       String
+  squareFootage Int           @map("square-footage")
+  city          String
+  state         String
+  rooms         Int
+  location      Json
+  userId        String        @db.Uuid
+  agentId       String?       @db.Uuid
+  type          PropertyType
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  user  User    @relation(fields: [userId], references: [id])
-  agent Agents? @relation(fields: [agentId], references: [id])
+  user       User         @relation(fields: [userId], references: [id])
+  agent      Agents?      @relation(fields: [agentId], references: [id])
+  Properties Properties[]
 
   @@map("requests")
 }
