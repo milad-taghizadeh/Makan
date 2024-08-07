@@ -35,9 +35,8 @@ import { VerifyAgentToken } from 'src/common/middlewares/verify-agent-token-midd
 })
 export class AuthModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(VerifyToken).forRoutes('*');
-  }
-  configureAgent(consumer: MiddlewareConsumer) {
+    // FIXME apply VerifyToken middleware and VerifyAgentToken middleware
     consumer.apply(VerifyAgentToken).forRoutes('*');
+    // consumer.apply(VerifyToken).forRoutes('*');
   }
 }

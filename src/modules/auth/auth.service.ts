@@ -68,7 +68,6 @@ export class AuthService {
     } else if (data.userType == AuthUserType.Agent) {
 
       const agent = await this.agentRepository.findByPhone(data.phoneNumber);
-
       if (agent) {
         return this.tokenService.createOtpToken({ AgentId: agent.id });
       } else {

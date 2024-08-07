@@ -16,9 +16,9 @@ export class TokenService {
     return token;
   }
 
-  verifyToken(token: string): CookiePayload {
+  verifyToken(token: string): CookiePayload  {
     try {
-      const payload: CookiePayload = this.jwtService.verify(token)
+      const payload: CookiePayload  = this.jwtService.verify(token)
       return payload
     } catch {
       return
