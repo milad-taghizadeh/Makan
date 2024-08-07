@@ -12,7 +12,7 @@ import { PropertyService } from './property.service';
 import { NewPropertyDto } from './dto/property.dto';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SwaggerConsumes } from 'src/common/enums/swagger.consumes.enum';
-import { CookiePayload } from '../auth/types/payload';
+import { AgentCookiePayload, CookiePayload } from '../auth/types/payload';
 import { JwtAgentGuard } from 'src/common/guards/auth.guard';
 import { Agent } from 'src/common/decorators/agent.decorator';
 
@@ -24,7 +24,7 @@ export class PropertyController {
 
   @Post('new-property')
   @ApiConsumes(SwaggerConsumes.urlEncoded, SwaggerConsumes.Json)
-  createProperty(@Body() data: NewPropertyDto, @Agent() agent: CookiePayload, @Body() requestId: string) {
-    return this.propertyService.createProperty(agent.AgentId, requestId, data);
+  async createProperty(@Body() data: NewPropertyDto, @Agent() agent: AgentCookiePayload, @Body() requestId: string) {
+    return await this.propertyService.createProperty(agent.AgentId, requestId, data);
   }
 }

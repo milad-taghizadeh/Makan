@@ -3,7 +3,7 @@ import { NextFunction, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { TokenService } from 'src/modules/auth/token.service';
 import { UserRepository } from 'src/modules/user/user.repository';
-import { CookiePayload } from 'src/modules/auth/types/payload';
+import { AgentCookiePayload, CookiePayload } from 'src/modules/auth/types/payload';
 import { JwtService } from '@nestjs/jwt';
 import { AgentRepository } from 'src/modules/agent/agent.repository';
 
@@ -16,7 +16,7 @@ export class VerifyAgentToken implements NestMiddleware {
   ) { }
 
   // USE func.
-  async use(req: Request & { agent: CookiePayload }, res: any, next: NextFunction) {
+  async use(req: Request & { agent: AgentCookiePayload }, res: any, next: NextFunction) {
 
     const token = req.cookies.accessToken
     if (!token) {
