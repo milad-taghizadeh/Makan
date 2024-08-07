@@ -6,7 +6,7 @@ export const Agent = createParamDecorator(
     // get the request
     const request = context.switchToHttp().getRequest();
 
-    //  return the user in the req.
+    //  return the agent in the req.
     return request.agent;
   },
 );

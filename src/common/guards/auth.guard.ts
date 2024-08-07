@@ -14,14 +14,4 @@ export class JwtGuard implements CanActivate {
   }
 }
 
-export class JwtAgentGuard implements CanActivate {
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    //get the request
-    const request = context.switchToHttp().getRequest();
 
-    // return TRUE if user exists.
-    return request?.agent;
-  }
-}
