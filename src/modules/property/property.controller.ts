@@ -13,8 +13,8 @@ import { NewPropertyDto } from './dto/property.dto';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { SwaggerConsumes } from 'src/common/enums/swagger.consumes.enum';
 import { AgentCookiePayload, CookiePayload } from '../auth/types/payload';
-import { JwtAgentGuard } from 'src/common/guards/auth.guard';
 import { Agent } from 'src/common/decorators/agent.decorator';
+import { JwtAgentGuard } from 'src/common/guards/auth-agent.guard';
 
 @Controller('property')
 @ApiTags('Property')
