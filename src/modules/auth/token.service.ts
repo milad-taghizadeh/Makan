@@ -25,4 +25,13 @@ export class TokenService {
     }
 
   }
+  verifyAgentToken(token: string): CookiePayload {
+    try {
+      const payload: CookiePayload = this.jwtService.verify(token)
+      return payload
+    } catch {
+      return
+    }
+
+  }
 }

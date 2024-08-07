@@ -9,6 +9,7 @@ import { UserRepository } from '../user/user.repository';
 import { VerifyToken } from 'src/common/middlewares/verify-token.middleware';
 import { ConfigService } from '@nestjs/config';
 import { AgentRepository } from '../agent/agent.repository';
+import { VerifyAgentToken } from 'src/common/middlewares/verify-agent-token-middleware';
 
 @Module({
   imports: [
@@ -35,5 +36,8 @@ import { AgentRepository } from '../agent/agent.repository';
 export class AuthModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(VerifyToken).forRoutes('*');
+  }
+  configureAgent(consumer: MiddlewareConsumer) {
+    consumer.apply(VerifyAgentToken).forRoutes('*');
   }
 }
