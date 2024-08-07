@@ -6,40 +6,25 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { PropertyService } from './property.service';
-import { CreatePropertyDto } from './dto/property.dto';
-import { UpdatePropertyDto } from './dto/update-property.dto';
+import { NewPropertyDto } from './dto/property.dto';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { SwaggerConsumes } from 'src/common/enums/swagger.consumes.enum';
+import { CookiePayload } from '../auth/types/payload';
+import { JwtAgentGuard } from 'src/common/guards/auth.guard';
+import { Agent } from 'src/common/decorators/agent.decorator';
 
 @Controller('property')
+@ApiTags('Property')
+@UseGuards(JwtAgentGuard)
 export class PropertyController {
   constructor(private readonly propertyService: PropertyService) {}
 
-  @Post()
-  create(@Body() createPropertyDto: CreatePropertyDto) {
-    return this.propertyService.create(createPropertyDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.propertyService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.propertyService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updatePropertyDto: UpdatePropertyDto,
-  ) {
-    return this.propertyService.update(+id, updatePropertyDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.propertyService.remove(+id);
+  @Post('new-property')
+  @ApiConsumes(SwaggerConsumes.urlEncoded, SwaggerConsumes.Json)
+  createProperty(@Body() data: NewPropertyDto, @Agent() agent: CookiePayload, @Body() requestId: string) {
+    return this.propertyService.createProperty(agent.AgentId, requestId, data);
   }
 }

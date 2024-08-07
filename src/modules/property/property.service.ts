@@ -1,26 +1,35 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePropertyDto } from './dto/property.dto';
-import { UpdatePropertyDto } from './dto/update-property.dto';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+import { NewPropertyDto } from './dto/property.dto';
+import { PropertyRepository } from './property.repository';
+import { RequestRepository } from '../request/request.repository';
+import { PropertyMessage } from './messages/property.message';
 
 @Injectable()
 export class PropertyService {
-  create(createPropertyDto: CreatePropertyDto) {
-    return 'This action adds a new property';
+  constructor(
+    private readonly propertyRepository: PropertyRepository,
+    private readonly requestRepository: RequestRepository,
+  ) {}
+
+  async createProperty(agentId: string, requestId: string, data: NewPropertyDto) {
+
+    const agentRequest = await this.requestRepository.findById(requestId);
+    if (agentId != agentRequest.agentId)
+      throw new ForbiddenException(PropertyMessage.FORBIDDEN_PROPERTY);
+    if (agentRequest.status != 'DONE')
+      throw new BadRequestException(PropertyMessage.BADREQUEST_STATUS_PROPERTY);
+
+    return await this.propertyRepository.create({
+      ...data,
+      agentId,
+      requestsId: agentRequest.id,
+      propertyType: agentRequest.type,
+      location: JSON.parse(JSON.stringify(data.location)),
+    });
   }
 
-  findAll() {
-    return `This action returns all property`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} property`;
-  }
-
-  update(id: number, updatePropertyDto: UpdatePropertyDto) {
-    return `This action updates a #${id} property`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} property`;
-  }
 }
