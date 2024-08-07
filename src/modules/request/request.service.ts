@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, Req, Res, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { NewRequestDto } from './dto/request.dto';
 import { RequestRepository } from './request.repository';
 import { Request, Response } from 'express';
@@ -21,7 +21,9 @@ export class RequestService {
   }
 
   async acceptRequest(id: string, agentId: string) {
-    const status = (await this.requestRepository.findById(id)).status;
+    const userRequest = await this.requestRepository.findById(id);
+    if (!userRequest) throw new NotFoundException(AcceptRequestMessages.NOTFOUND_REQUEST_ACCEPT_REQUEST);
+    const status = userRequest.status
     if (status == "CANCELED") throw new BadRequestException(AcceptRequestMessages.BADREQUEST_STATUS_CANCELED_ACCEPT_REQUEST);
     if (status == "EXPIRED") throw new BadRequestException(AcceptRequestMessages.BADREQUEST_STATUS_EXPIRED_ACCEPT_REQUEST);
     if (status == "DONE") throw new BadRequestException(AcceptRequestMessages.BADREQUEST_STATUS_DONE_ACCEPT_REQUEST)

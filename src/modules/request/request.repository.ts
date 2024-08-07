@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'src/common/interfaces/repository';
 import { $Enums, Prisma, Requests, RequestStatus } from '@prisma/client';
 import { PrismaService } from 'src/database/database.service';
+import { v4 as uuid } from "uuid";
 
 @Injectable()
 export class RequestRepository implements Repository<Requests> {
@@ -13,7 +14,8 @@ export class RequestRepository implements Repository<Requests> {
     async create(data: Omit<Requests, "id" | "createdAt" | "updatedAt" | "agentId">): Promise<Requests> {
         return await this.prismaService.requests.create({
             data: {
-                ...data
+                ...data,
+                id: uuid()
             }
         })
     }
