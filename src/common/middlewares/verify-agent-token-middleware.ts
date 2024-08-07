@@ -28,7 +28,7 @@ export class VerifyAgentToken implements NestMiddleware {
     if (!payload) {
       return next()
     }
-
+    console.log(payload);
     const agent = await this.agentRepository.findById(payload.AgentId);
 
 

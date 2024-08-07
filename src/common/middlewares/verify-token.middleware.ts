@@ -3,8 +3,9 @@ import { NextFunction, Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { TokenService } from 'src/modules/auth/token.service';
 import { UserRepository } from 'src/modules/user/user.repository';
-import { CookiePayload } from 'src/modules/auth/types/payload';
+import { AgentCookiePayload, CookiePayload } from 'src/modules/auth/types/payload';
 import { JwtService } from '@nestjs/jwt';
+import { AgentRepository } from 'src/modules/agent/agent.repository';
 
 @Injectable()
 export class VerifyToken implements NestMiddleware {
@@ -27,6 +28,7 @@ export class VerifyToken implements NestMiddleware {
     if (!payload) {
       return next()
     }
+    console.log(payload);
 
     const user = await this.userRepository.findById(payload.UserId);
 
