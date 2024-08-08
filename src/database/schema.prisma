@@ -84,7 +84,7 @@ model Properties {
 
   title       String
   description String
-  price       BigInt
+  price       Int
 
   address  String //TODO: addres relation
   city     String
@@ -96,7 +96,7 @@ model Properties {
   status PropertyStatus
 
   listingDate  DateTime
-  listingPrice BigInt
+  listingPrice Int
 
   agentId    String @db.Uuid
   requestsId String @db.Uuid

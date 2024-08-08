@@ -70,7 +70,7 @@ CREATE TABLE "properties" (
     "id" UUID NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "price" BIGINT NOT NULL,
+    "price" INTEGER NOT NULL,
     "address" TEXT NOT NULL,
     "city" TEXT NOT NULL,
     "state" TEXT NOT NULL,
@@ -79,8 +79,9 @@ CREATE TABLE "properties" (
     "type" "PropertyType" NOT NULL,
     "status" "PropertyStatus" NOT NULL,
     "listingDate" TIMESTAMP(3) NOT NULL,
-    "listingPrice" BIGINT NOT NULL,
+    "listingPrice" INTEGER NOT NULL,
     "agentId" UUID NOT NULL,
+    "requestsId" UUID NOT NULL,
     "bedrooms" INTEGER NOT NULL,
     "bathrooms" INTEGER NOT NULL,
     "squareFootage" INTEGER NOT NULL,
@@ -110,12 +111,14 @@ CREATE TABLE "requests" (
     "id" UUID NOT NULL,
     "status" "RequestStatus" NOT NULL,
     "address" TEXT NOT NULL,
+    "square-footage" INTEGER NOT NULL,
     "city" TEXT NOT NULL,
     "state" TEXT NOT NULL,
     "rooms" INTEGER NOT NULL,
     "location" JSONB NOT NULL,
     "userId" UUID NOT NULL,
     "agentId" UUID,
+    "type" "PropertyType" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -155,10 +158,16 @@ CREATE UNIQUE INDEX "user_phone_key" ON "user"("phone");
 CREATE UNIQUE INDEX "agents_email_key" ON "agents"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "agents_phone_key" ON "agents"("phone");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "admins_username_key" ON "admins"("username");
 
 -- AddForeignKey
 ALTER TABLE "properties" ADD CONSTRAINT "properties_agentId_fkey" FOREIGN KEY ("agentId") REFERENCES "agents"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "properties" ADD CONSTRAINT "properties_requestsId_fkey" FOREIGN KEY ("requestsId") REFERENCES "requests"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "favorites" ADD CONSTRAINT "favorites_propertyId_fkey" FOREIGN KEY ("propertyId") REFERENCES "properties"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
