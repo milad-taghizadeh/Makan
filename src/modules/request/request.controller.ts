@@ -23,7 +23,7 @@ import { JwtAgentGuard } from 'src/common/guards/auth-agent.guard';
 export class RequestController {
   constructor(private readonly requestService: RequestService) { }
 
-  @Post('new-request')
+  @Post('new')
   @UseGuards(JwtGuard)
   @ApiConsumes(SwaggerConsumes.urlEncoded, SwaggerConsumes.Json)
   async sendRequest(
@@ -33,7 +33,7 @@ export class RequestController {
     return await this.requestService.sendRequest(user.UserId, newRequestDto);
   }
 
-  @Post('accept-request')
+  @Post('accept')
   @UseGuards(JwtAgentGuard)
   @ApiConsumes(SwaggerConsumes.urlEncoded, SwaggerConsumes.Json)
   async acceptRequest(
@@ -41,6 +41,32 @@ export class RequestController {
     @Body('id') id: string
   ) {
     return await this.requestService.acceptRequest(id, agent.AgentId);
+  }
+
+  @Post('cancel')
+  @UseGuards(JwtGuard)
+  @ApiConsumes(SwaggerConsumes.urlEncoded, SwaggerConsumes.Json)
+  async cancelRequest(
+    @User() user: CookiePayload,
+    @Body('id') id: string
+  ) {
+    return await this.requestService.cancelRequest(id, user.UserId);
+  }
+
+  @Get('get/reqid/:id')
+  @ApiConsumes(SwaggerConsumes.urlEncoded, SwaggerConsumes.Json)
+  async getReqById(
+    @Param('id') id: string
+  ) {
+    return await this.requestService.getReqById(id);
+  }
+
+  @Get('get/userid/:userid')
+  @ApiConsumes(SwaggerConsumes.urlEncoded, SwaggerConsumes.Json)
+  async indexUserRequests(
+    @Body('userid') userId: string
+  ) {
+    return await this.requestService.indexUserRequests(userId);
   }
 
 }

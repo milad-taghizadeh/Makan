@@ -21,8 +21,7 @@ export class RequestService {
   }
 
   async acceptRequest(id: string, agentId: string) {
-    const userRequest = await this.requestRepository.findById(id);
-    if (!userRequest) throw new NotFoundException(AcceptRequestMessages.NOTFOUND_REQUEST_ACCEPT_REQUEST);
+    const userRequest = await this.getReqById(id)
     const status = userRequest.status
     if (status == "CANCELED") throw new BadRequestException(AcceptRequestMessages.BADREQUEST_STATUS_CANCELED_ACCEPT_REQUEST);
     if (status == "EXPIRED") throw new BadRequestException(AcceptRequestMessages.BADREQUEST_STATUS_EXPIRED_ACCEPT_REQUEST);
@@ -35,11 +34,10 @@ export class RequestService {
   }
 
   async cancelRequest(id: string, userId: string) {
-    const request = await this.requestRepository.findById(id)
+    const request = await this.getReqById(id)
     if (request.userId != userId) {
       throw new ForbiddenException(RequestMessages.FORBIDDEN_REQUEST)
     }
-
     if (request.status == "CANCELED") throw new BadRequestException(CancelRequestMessages.BADREQUEST_STATUS_CANCELED_CANCEL_REQUEST);
     if (request.status == "EXPIRED") throw new BadRequestException(CancelRequestMessages.BADREQUEST_STATUS_EXPIRED_CANCEL_REQUEST);
     // TODO: cancel an accepted request
@@ -58,7 +56,9 @@ export class RequestService {
   }
 
   async getReqById(id: string) {
-    return await this.requestRepository.findById(id)
+    const userRequest = await this.requestRepository.findById(id);
+    if (!userRequest) throw new NotFoundException(RequestMessages.NOTFOUND_REQUEST);
+    return userRequest
   }
 
 }
