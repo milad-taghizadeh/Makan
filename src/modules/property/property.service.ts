@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { NewPropertyDto } from './dto/property.dto';
 import { PropertyRepository } from './property.repository';
@@ -18,7 +19,8 @@ export class PropertyService {
   async createProperty(agentId: string, requestId: string, data: NewPropertyDto) {
 
     const agentRequest = await this.requestRepository.findById(requestId);
-    if (agentId != agentRequest.agentId)
+    if(!agentRequest) throw new NotFoundException(PropertyMessage.NOTFOUND_REQUEST_FOR_PROPERTY)
+    if (agentId != agentRequest.agentId && agentRequest.agentId != null)
       throw new ForbiddenException(PropertyMessage.FORBIDDEN_PROPERTY);
     if (agentRequest.status != 'DONE')
       throw new BadRequestException(PropertyMessage.BADREQUEST_STATUS_PROPERTY);

@@ -36,8 +36,8 @@ export class NewPropertyDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
-  price: bigint;
+  @IsNumber()
+  price: number;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -83,7 +83,7 @@ export class NewPropertyDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  listingPrice: bigint;
+  listingPrice: number;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -112,7 +112,6 @@ export class NewPropertyDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
-  @Length(0, 100)
   yearBuilt: number;
 
   //   FIXME: check this

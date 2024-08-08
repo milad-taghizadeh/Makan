@@ -22,9 +22,9 @@ import { JwtAgentGuard } from 'src/common/guards/auth-agent.guard';
 export class PropertyController {
   constructor(private readonly propertyService: PropertyService) {}
 
-  @Post('new-property')
+  @Post('new/:requestId')
   @ApiConsumes(SwaggerConsumes.urlEncoded, SwaggerConsumes.Json)
-  async createProperty(@Body() data: NewPropertyDto, @Agent() agent: AgentCookiePayload, @Body() requestId: string) {
+  async createProperty(@Body() data: NewPropertyDto, @Agent() agent: AgentCookiePayload, @Param('requestId') requestId: string) {
     return await this.propertyService.createProperty(agent.AgentId, requestId, data);
   }
 }
