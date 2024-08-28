@@ -68,4 +68,12 @@ export class PropertyRepository implements Repository<Properties> {
             orderBy : {createdAt: "desc"}
         })
     }
+
+    async findAll(): Promise<Partial<Properties>[]> {
+        return await this.prismaService.properties.findMany({
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+    }
 }
