@@ -1,20 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { PropertyRepository } from './property.repository';
+import { LocationDto } from './dto/property.dto';
 
 @Injectable()
 export class MapService {
   constructor(private readonly propertyRepository: PropertyRepository) {}
 
-  private pointInPolygon(point: { x: number; y: number }, polygon: { x: number; y: number }[]): boolean {
-    const { x, y } = point;
+  private pointInPolygon(point: LocationDto, polygon: LocationDto[]): boolean {
+    const  x = point.long;
+    const y = point.lat;
     const n = polygon.length;
     let inside = false;
 
     for (let i = 0, j = n - 1; i < n; j = i++) {
-      const xi = polygon[i].x;
-      const yi = polygon[i].y;
-      const xj = polygon[j].x;
-      const yj = polygon[j].y;
+      const xi = polygon[i].long;
+      const yi = polygon[i].lat;
+      const xj = polygon[j].long;
+      const yj = polygon[j].lat;
 
       const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
 
@@ -26,14 +28,17 @@ export class MapService {
     return inside;
   }
 
-  async searchPropertiesInPolygon(polygon: { x: number; y: number }[]): Promise<any> {
+  async searchPropertiesInPolygon(polygon: LocationDto[]): Promise<any> {
     const properties = await this.propertyRepository.findAll();
     const propertiesInPolygon = properties.filter((property) => {
-      
-      const point = { x: Number(property.location["longitude"]), y: Number(property.location["latitude"]) };
+      const point: LocationDto = {
+        lat: Number(property.location["lat"]),
+        long: Number(property.location["lng"]),
+      };
+      console.log(point)
       return this.pointInPolygon(point, polygon);
     });
-  
+    
     return propertiesInPolygon;
   }
 }
