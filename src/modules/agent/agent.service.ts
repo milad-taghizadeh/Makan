@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateAgentDto } from './dto/create-agent.dto';
 import { UpdateAgentDto } from './dto/update-agent.dto';
 import { AgentRepository } from './agent.repository';
+import { Agent } from 'src/common/decorators/agent.decorator';
 
 @Injectable()
 export class AgentService {
@@ -42,5 +43,9 @@ export class AgentService {
     // TODO -> add status
     await this.agentRepository.update(agent.id, { status: 'DELETED' });
     return { message: 'Agent deleted successfully' };
+  }
+  
+  async getAgentPhone(agent: any): Promise<string> {
+    return agent.phone;
   }
 }
