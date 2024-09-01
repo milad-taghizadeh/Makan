@@ -11,4 +11,33 @@ import { CookiePayload } from '../auth/types/payload';
 export class AgentController {
   constructor(private readonly agentService: AgentService) { }
 
+  @Post()
+  async create(@Body() createAgentDto: CreateAgentDto): Promise<any> {
+    const agent = await this.agentService.create(createAgentDto);
+    return agent;
+  }
+
+  @Get()
+  async findAll(): Promise<any> {
+    const agents = await this.agentService.findAll();
+    return agents;
+  }
+
+  @Get(':phone')
+  async findOne(@Param('phone') phone: string): Promise<any> {
+    const agent = await this.agentService.findOne(phone);
+    return agent;
+  }
+
+  @Patch(':phone')
+  async update(@Param('phone') phone: string, @Body() updateAgentDto: UpdateAgentDto): Promise<any> {
+    const updatedAgent = await this.agentService.update(phone, updateAgentDto);
+    return updatedAgent;
+  }
+
+  @Delete(':phone')
+  async remove(@Param('phone') phone: string): Promise<any> {
+    const result = await this.agentService.remove(phone);
+    return result;
+  }
 }
