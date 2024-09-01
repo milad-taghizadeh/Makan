@@ -17,28 +17,29 @@ export class AgentService {
     return { message: 'Agents retrieved successfully', agents };
   }
 
-  async findOne(id: string): Promise<any> {
-    const agent = await this.agentRepository.findById(id);
+  async findOne(phone: string): Promise<any> {
+    const agent = await this.agentRepository.findByPhone(phone);
     if (!agent) {
       return { message: 'Agent not found' };
     }
     return { message: 'Agent retrieved successfully', agent };
   }
 
-  async update(id: string, updateAgentDto: UpdateAgentDto): Promise<any> {
-    const agent = await this.agentRepository.update(id, updateAgentDto);
+  async update(phone: string, updateAgentDto: UpdateAgentDto): Promise<any> {
+    const agent = await this.agentRepository.findByPhone(phone);
     if (!agent) {
       return { message: 'Agent not found' };
     }
-    return { message: 'Agent updated successfully', agent };
+    const updatedAgent = await this.agentRepository.update(agent.id, updateAgentDto);
+    return { message: 'Agent updated successfully', updatedAgent };
   }
 
-  async remove(id: string): Promise<any> {
-    const agent = await this.agentRepository.findById(id);
+  async remove(phone: string): Promise<any> {
+    const agent = await this.agentRepository.findByPhone(phone);
     if (!agent) {
       return { message: 'Agent not found' };
     }
-    await this.agentRepository.update(id, { status: 'DELETED' });
+    await this.agentRepository.update(agent.id, { status: 'DELETED' });
     return { message: 'Agent deleted successfully' };
   }
 }
