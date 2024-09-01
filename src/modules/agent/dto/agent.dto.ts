@@ -1,6 +1,7 @@
-import { IsString, IsOptional } from 'class-validator';
+import { Agent_Status } from '@prisma/client';
+import { IsString, IsOptional, IsEnum } from 'class-validator';
 
-export class CreateAgentDto {
+export class AgentDto {
   @IsString()
   @IsOptional()
   name: string;
@@ -8,6 +9,10 @@ export class CreateAgentDto {
   @IsString()
   @IsOptional()
   email: string;
+
+  @IsString()
+  @IsEnum(Agent_Status)
+  status: Agent_Status;
 
   @IsString()
   @IsOptional()

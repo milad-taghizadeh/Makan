@@ -57,7 +57,7 @@ model Agents {
   company       String?
   phone         String  @unique
   //TODO status
-
+  status    Agent_Status 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
@@ -65,6 +65,12 @@ model Agents {
   Requests   Requests[]
 
   @@map("agents")
+}
+enum Agent_Status {
+  DELETED
+  SUSPENDED
+  OK
+  NOT_VERIFIED
 }
 
 model Admins {

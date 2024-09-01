@@ -1,6 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { AgentService } from './agent.service';
-import { CreateAgentDto } from './dto/create-agent.dto';
+import { CreateAgentDto } from './dto/agent.dto';
 import { UpdateAgentDto } from './dto/update-agent.dto';
 import { JwtGuard } from 'src/common/guards/auth.guard';
 import { User } from 'src/common/decorators/user.decorator';
@@ -9,7 +18,7 @@ import { CookiePayload } from '../auth/types/payload';
 @Controller('agent')
 @UseGuards(JwtGuard)
 export class AgentController {
-  constructor(private readonly agentService: AgentService) { }
+  constructor(private readonly agentService: AgentService) {}
 
   @Post()
   async create(@Body() createAgentDto: CreateAgentDto): Promise<any> {
@@ -30,7 +39,10 @@ export class AgentController {
   }
 
   @Patch(':phone')
-  async update(@Param('phone') phone: string, @Body() updateAgentDto: UpdateAgentDto): Promise<any> {
+  async update(
+    @Param('phone') phone: string,
+    @Body() updateAgentDto: UpdateAgentDto,
+  ): Promise<any> {
     const updatedAgent = await this.agentService.update(phone, updateAgentDto);
     return updatedAgent;
   }
