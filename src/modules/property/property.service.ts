@@ -55,7 +55,7 @@ export class PropertyService {
     return await this.propertyRepository.findByRequestId(requestId);
   }
 
-  async updateProperty(id: string, data: Properties) {
+  async updateProperty(id: string, data: Partial<Properties>) {
     const property = await this.propertyRepository.findById(id);
     if (!property) {
       throw new NotFoundException(PropertyMessage.NOTFOUND_PROPERTY);

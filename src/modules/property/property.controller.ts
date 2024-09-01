@@ -15,6 +15,7 @@ import { SwaggerConsumes } from 'src/common/enums/swagger.consumes.enum';
 import { AgentCookiePayload, CookiePayload } from '../auth/types/payload';
 import { Agent } from 'src/common/decorators/agent.decorator';
 import { JwtAgentGuard } from 'src/common/guards/auth-agent.guard';
+import { Properties } from '@prisma/client';
 
 @Controller('property')
 @ApiTags('Property')
@@ -24,7 +25,7 @@ export class PropertyController {
 
   @Post('new/:requestId')
   @ApiConsumes(SwaggerConsumes.urlEncoded, SwaggerConsumes.Json)
-  async createProperty(@Body() data: NewPropertyDto, @Agent() agent: AgentCookiePayload, @Param('requestId') requestId
+  async createProperty(@Body() data: NewPropertyDto, @Agent() agent: AgentCookiePayload, @Param('requestId') requestId:
 string) {
     return await this.propertyService.createProperty(agent.AgentId, requestId, data);
   }
@@ -50,7 +51,7 @@ string) {
   }
 
   @Patch(':id')
-  async updateProperty(@Param('id') id: string, @Body() data: NewPropertyDto) {
+  async updateProperty(@Param('id') id: string, @Body() data: Partial<Properties>) {
     return await this.propertyService.updateProperty(id, data);
   }
 
