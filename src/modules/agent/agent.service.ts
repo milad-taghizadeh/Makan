@@ -39,6 +39,7 @@ export class AgentService {
     if (!agent) {
       return { message: 'Agent not found' };
     }
+    // TODO -> add status
     await this.agentRepository.update(agent.id, { status: 'DELETED' });
     return { message: 'Agent deleted successfully' };
   }
