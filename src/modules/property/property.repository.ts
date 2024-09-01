@@ -20,7 +20,7 @@ export class PropertyRepository implements Repository<Properties> {
         })
     }
 
-    async update(id: string, data: Properties): Promise<Properties> {
+    async update(id: string, data: Partial<Properties>): Promise<Properties> {
         return await this.prismaService.properties.update({
             where: {
                 id

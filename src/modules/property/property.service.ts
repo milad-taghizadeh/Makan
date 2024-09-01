@@ -8,6 +8,7 @@ import { NewPropertyDto } from './dto/property.dto';
 import { PropertyRepository } from './property.repository';
 import { RequestRepository } from '../request/request.repository';
 import { PropertyMessage } from './messages/property.message';
+import { Properties, PropertyStatus } from '@prisma/client';
 
 @Injectable()
 export class PropertyService {
@@ -34,4 +35,39 @@ export class PropertyService {
     });
   }
 
+  async getAllProperties() {
+    return await this.propertyRepository.findAll();
+  }
+
+  async getPropertyById(id: string) {
+    const property = await this.propertyRepository.findById(id);
+    if (!property) {
+      throw new NotFoundException(PropertyMessage.NOTFOUND_PROPERTY);
+    }
+    return property;
+  }
+
+  async getPropertiesByAgentId(agentId: string) {
+    return await this.propertyRepository.indexAgentProperty(agentId);
+  }
+
+  async getPropertiesByRequestId(requestId: string) {
+    return await this.propertyRepository.findByRequestId(requestId);
+  }
+
+  async updateProperty(id: string, data: Properties) {
+    const property = await this.propertyRepository.findById(id);
+    if (!property) {
+      throw new NotFoundException(PropertyMessage.NOTFOUND_PROPERTY);
+    }
+    return await this.propertyRepository.update(id, data);
+  }
+
+  async deleteProperty(id: string) {
+    const property = await this.propertyRepository.findById(id);
+    if (!property) {
+      throw new NotFoundException(PropertyMessage.NOTFOUND_PROPERTY);
+    }
+    return await this.propertyRepository.update(id, { status: PropertyStatus.DELETED });
+  }
 }

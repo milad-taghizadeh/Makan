@@ -24,7 +24,38 @@ export class PropertyController {
 
   @Post('new/:requestId')
   @ApiConsumes(SwaggerConsumes.urlEncoded, SwaggerConsumes.Json)
-  async createProperty(@Body() data: NewPropertyDto, @Agent() agent: AgentCookiePayload, @Param('requestId') requestId: string) {
+  async createProperty(@Body() data: NewPropertyDto, @Agent() agent: AgentCookiePayload, @Param('requestId') requestId
+string) {
     return await this.propertyService.createProperty(agent.AgentId, requestId, data);
+  }
+
+  @Get()
+  async getAllProperties() {
+    return await this.propertyService.getAllProperties();
+  }
+
+  @Get(':id')
+  async getPropertyById(@Param('id') id: string) {
+    return await this.propertyService.getPropertyById(id);
+  }
+
+  @Get('agent/:agentId')
+  async getPropertiesByAgentId(@Param('agentId') agentId: string) {
+    return await this.propertyService.getPropertiesByAgentId(agentId);
+  }
+
+  @Get('request/:requestId')
+  async getPropertiesByRequestId(@Param('requestId') requestId: string) {
+    return await this.propertyService.getPropertiesByRequestId(requestId);
+  }
+
+  @Patch(':id')
+  async updateProperty(@Param('id') id: string, @Body() data: NewPropertyDto) {
+    return await this.propertyService.updateProperty(id, data);
+  }
+
+  @Delete(':id')
+  async deleteProperty(@Param('id') id: string) {
+    return await this.propertyService.deleteProperty(id);
   }
 }

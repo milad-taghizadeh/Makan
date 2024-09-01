@@ -120,3 +120,9 @@ export class NewPropertyDto {
   @IsString()
   architectureStyle: string;
 }
+
+
+export class AutocompleteItem {
+  id: number;
+  name: string;
+}
