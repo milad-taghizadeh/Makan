@@ -40,12 +40,12 @@ string) {
     return await this.propertyService.getPropertyById(id);
   }
 
-  @Get('agent/:agentId')
+  @Get('get/agentid/:agentId')
   async getPropertiesByAgentId(@Param('agentId') agentId: string) {
     return await this.propertyService.getPropertiesByAgentId(agentId);
   }
 
-  @Get('request/:requestId')
+  @Get('get/requestid/:requestId')
   async getPropertiesByRequestId(@Param('requestId') requestId: string) {
     return await this.propertyService.getPropertiesByRequestId(requestId);
   }
