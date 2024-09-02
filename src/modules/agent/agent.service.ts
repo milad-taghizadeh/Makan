@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { AgentDto } from './dto/agent.dto';
 import { AgentRepository } from './agent.repository';
 import { AgentMessages } from './messages/agent.messages';
@@ -10,20 +10,18 @@ export class AgentService {
 
   async create(agentDto: AgentDto): Promise<any> {
     const agent = await this.agentRepository.create(agentDto);
-    return { message: 'Agent created successfully', agent };
+    return agent;
   }
 
   async findAll(): Promise<any> {
     const agents = await this.agentRepository.findMany({});
-    return { message: 'Agents retrieved successfully', agents };
+    return agents;
   }
 
   async findOne(phone: string): Promise<any> {
     const agent = await this.agentRepository.findByPhone(phone);
-    if (!agent) {
-      return { message: 'Agent not found' };
-    }
-    return { message: 'Agent retrieved successfully', agent };
+    if (!agent) return new NotFoundException(AgentMessages.NOT_FOUND_AGENT)
+    return agent;
   }
 
   async update(phone: string, agentDto:AgentDto): Promise<any> {
