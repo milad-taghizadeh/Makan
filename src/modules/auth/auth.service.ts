@@ -26,6 +26,7 @@ export class AuthService {
       existingOtp &&
       existingOtp.createdAt > new Date(Date.now() - 2 * 60 * 1000)
     ) {
+      // TODO: add messages
       throw new BadRequestException('retry latter.');
     }
 
@@ -89,6 +90,7 @@ export class AuthService {
   private async agentRegister(phoneNumber: string): Promise<Agents> {
     return await this.agentRepository.create({
       phone: phoneNumber,
+      status : "NOT_VERIFIED",
       name: null,
       email: null,
       facePic: null,

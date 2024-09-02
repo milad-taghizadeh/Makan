@@ -68,6 +68,11 @@ export class PropertyService {
     if (!property) {
       throw new NotFoundException(PropertyMessage.NOTFOUND_PROPERTY);
     }
-    return await this.propertyRepository.update(id, { status: PropertyStatus.DELETED });
+    return await this.propertyRepository.update(id, { status: "DELETED" });
+
+
+
+
+    
   }
 }
