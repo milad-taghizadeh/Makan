@@ -3,6 +3,8 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// TODO: state || status
+
 
 generator client {
   provider = "prisma-client-js"
@@ -67,10 +69,11 @@ model Agents {
   @@map("agents")
 }
 enum Agent_Status {
-  DELETED
-  SUSPENDED
   OK
+  SUSPENDED
   NOT_VERIFIED
+  PENDING
+  DELETED
 }
 
 model Admins {
@@ -219,4 +222,6 @@ enum RequestStatus {
 enum PropertyStatus {
   SOLD
   OPEN
+  DELETED
+
 }
