@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/com
 import { AgentDto } from './dto/agent.dto';
 import { AgentRepository } from './agent.repository';
 import { AgentMessages } from './messages/agent.messages';
+import { Agent } from 'src/common/decorators/agent.decorator';
 
 @Injectable()
 export class AgentService {
@@ -42,5 +43,9 @@ export class AgentService {
     if (agent.status == "DELETED") throw new BadRequestException(AgentMessages.REMOVE_AGENT_BADREQUEST)
     await this.agentRepository.update(agent.id, { status: 'DELETED' });
     return { message: 'Agent deleted successfully' };
+  }
+  
+  async getAgentPhone(agent: any): Promise<string> {
+    return agent.phone;
   }
 }
