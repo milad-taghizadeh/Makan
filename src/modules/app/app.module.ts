@@ -8,6 +8,9 @@ import { CustomConfigModule } from '../config/config.module';
 import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
 import { join } from 'path';
+import { AgentModule } from '../agent/agent.module';
+import { RequestModule } from '../request/request.module';
+import { PropertyModule } from '../property/property.module';
 
 @Module({
   imports: [
@@ -20,7 +23,10 @@ import { join } from 'path';
     CustomConfigModule,
     AppModule,
     AuthModule,
+    RequestModule,
     UserModule,
+    AgentModule,
+    PropertyModule
   ],
   controllers: [AppController],
   providers: [AppService],

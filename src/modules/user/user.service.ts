@@ -1,26 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+ import { UserRepository } from './user.repository';
+ import { CreateUserDto } from './dto/create-user.dto';
+ import { UpdateUserDto } from './dto/update-user.dto';
 
-@Injectable()
-export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
+ @Injectable()
+ export class UserService {
+   constructor(private readonly userRepository: UserRepository) {}
 
-  findAll() {
-    return `This action returns all user`;
-  }
+   async createUser(createUserDto: CreateUserDto): Promise<any> {
+     const user = await this.userRepository.create(createUserDto);
+     return user;
+   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+   async findAll(): Promise<any[]> {
+     const users = await this.userRepository.findMany({});
+     return users;
+   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+   async findOne(id: string): Promise<any> {
+     const user = await this.userRepository.findById(id);
+     return user;
+   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
-}
+   async findByPhone(phone: string): Promise<any> {
+     const user = await this.userRepository.findByPhone(phone);
+     return user;
+   }
+
+   async update(id: string, updateUserDto: UpdateUserDto): Promise<any> {
+     const user = await this.userRepository.update(id, updateUserDto);
+     return user;
+   }
+
+   async remove(id: string): Promise<any> {
+     const user = await this.userRepository.findById(id);
+     if (!user) {
+       throw new Error('User not found');
+     }
+     await this.userRepository.update(id, { ...user, phone: null });
+     return { message: 'User deleted successfully' };
+   }
+ }

@@ -3,6 +3,8 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// TODO: state || status
+
 
 generator client {
   provider = "prisma-client-js"
@@ -14,34 +16,212 @@ datasource db {
 }
 
 model User {
-  id               String   @id @default(uuid())
-  username         String?  @map("username")
-  nick_name        String?  @map("nick_name")
-  bio              String?
-  gender           String?
-  image_profile    String?
-  bg_image         String?
-  birthday         String?
-  linkedin_profile String?
-  email            String?  @unique
-  phone            String?  @unique
-  password         String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  Otp              Otp[]
+  id String @id @default(uuid()) @db.Uuid
+
+  firstname String?
+  lastName  String?
+  email     String? @unique
+  phone     String  @unique
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt()
+
+  // Otp       Otp[]
+  Favorites Favorites[]
+  Requests  Requests[]
+
+  @@map("user")
 }
 
 model Otp {
-  id        String   @id @default(uuid())
-  owner     User     @relation(fields: [userId], references: [id])
-  userId    String
-  code      String
-  expiresIn DateTime @map("expiresIn") @db.Timestamp(5)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  // owner     User     @relation(fields: [userId], references: [id])
+  // userId    String   @db.Uuid
+  code        String
+  phoneNumber String
+  isUsed      Boolean  @default(true)
+  expiresIn   DateTime @map("expiresIn") @db.Timestamp(5)
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+
+  @@map("otp")
 }
 
-enum Gender {
-  MALE
-  FEMALE
+model Agents {
+  id            String  @id @default(uuid()) @db.Uuid
+  name          String?
+  email         String? @unique
+  facePic       String? @map("face_pic")
+  nationalCode  String? @map("national_code")
+  IDCardPicture String? @map("id_card_picture")
+  bio           String?
+  company       String?
+  phone         String  @unique
+  //TODO status
+  status    Agent_Status 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  Properties Properties[]
+  Requests   Requests[]
+
+  @@map("agents")
+}
+enum Agent_Status {
+  OK
+  SUSPENDED
+  NOT_VERIFIED
+  PENDING
+  DELETED
+}
+
+model Admins {
+  id       String @id @default(cuid()) @db.Uuid
+  name     String
+  username String @unique
+  password String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("admins")
+}
+
+model Properties {
+  id String @id @default(cuid()) @db.Uuid
+
+  title       String
+  description String
+  price       Int
+
+  address  String //TODO: addres relation
+  city     String
+  state    String
+  zip      String
+  location Json
+
+  type   PropertyType
+  status PropertyStatus
+
+  listingDate  DateTime
+  listingPrice Int
+
+  agentId    String @db.Uuid
+  requestsId String @db.Uuid
+  bedrooms   Int
+  bathrooms  Int
+
+  squareFootage     Int //details
+  lotSize           Int
+  yearBuilt         Int
+  propertyType      String
+  architectureStyle String
+
+  agent            Agents             @relation(fields: [agentId], references: [id])
+  request          Requests           @relation(fields: [requestsId], references: [id])
+  Favorites        Favorites[]
+  PropertyFeatures PropertyFeatures[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("properties")
+}
+
+model Favorites {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId     String @db.Uuid
+  propertyId String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  property Properties @relation(fields: [propertyId], references: [id])
+  user     User       @relation(fields: [userId], references: [id])
+
+  @@map("favorites")
+}
+
+model Requests {
+  id            String        @id @default(uuid()) @db.Uuid
+  status        RequestStatus
+  address       String
+  squareFootage Int           @map("square-footage")
+  city          String
+  state         String
+  rooms         Int
+  location      Json
+  userId        String        @db.Uuid
+  agentId       String?       @db.Uuid
+  type          PropertyType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  user       User         @relation(fields: [userId], references: [id])
+  agent      Agents?      @relation(fields: [agentId], references: [id])
+  Properties Properties[]
+
+  @@map("requests")
+}
+
+model Features {
+  id String @id @default(uuid()) @db.Uuid
+
+  featureType FeatureType
+  featureName String
+  description String
+
+  //TODO : images
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  PropertyFeatures PropertyFeatures[]
+
+  @@map("features")
+}
+
+model PropertyFeatures {
+  id String @id @default(uuid()) @db.Uuid
+
+  propertyId String @db.Uuid
+  featureId  String @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  feature  Features   @relation(fields: [featureId], references: [id])
+  property Properties @relation(fields: [propertyId], references: [id])
+
+  @@map("property_features")
+}
+
+enum FeatureType {
+  INTERIOR
+  EXTERIOR
+  AMENITY
+  OTHER
+}
+
+enum PropertyType {
+  RENT
+  SALE
+  MORTGAGE
+}
+
+enum RequestStatus {
+  PENDING
+  CANCELED
+  EXPIRED
+  DONE
+}
+
+enum PropertyStatus {
+  SOLD
+  OPEN
+  DELETED
+
 }

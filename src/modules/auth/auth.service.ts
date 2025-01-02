@@ -1,142 +1,103 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Inject,
-  Injectable,
-  Scope,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { AuthDto } from './dto/auth.dto';
-import { AuthType } from './enums/type.enum';
-import { AuthMethod } from './enums/method.enum';
-import { isEmail, isPhoneNumber } from 'class-validator';
-import { PrismaService } from 'src/database/database.service';
-import { User } from '@prisma/client';
-import {
-  AuthMessage,
-  BadRequestMessage,
-  PublicMessage,
-} from 'src/common/enums/message.enum';
-import { randomInt } from 'crypto';
-import { JwtService } from '@nestjs/jwt';
-import { TokenService } from './token.service';
-import { Request, Response } from 'express';
-import { CookieKeys } from 'src/common/enums/cookie.enum';
-import { AuthResponse } from './types/response';
-import { REQUEST } from '@nestjs/core';
+import { BadRequestException, Injectable, Scope, ServiceUnavailableException } from '@nestjs/common';
 
-@Injectable({ scope: Scope.REQUEST })
+import { TokenService } from './token.service';
+import { UserRepository } from '../user/user.repository';
+import { OtpRepository } from './otp.repository';
+import { CheckOtpDto, SendOtpDto } from './dto/auth.dto';
+import { Agents, User } from '@prisma/client';
+import { AuthMessage, ServerMessages } from './messages/auth.messages';
+import { AgentRepository } from '../agent/agent.repository';
+import { AuthUserType } from './enums/user-type.enum';
+
+@Injectable()
 export class AuthService {
   constructor(
-    private readonly databaseService: PrismaService,
+    private readonly userRepository: UserRepository,
+    private readonly agentRepository: AgentRepository,
+    private readonly otpRepository: OtpRepository,
     private tokenService: TokenService,
-    @Inject(REQUEST) private request: Request,
   ) {}
-  async userExistence(authDto: AuthDto, res: Response) {
-    const { method, type, username } = authDto;
-    let result: AuthResponse;
-    switch (type) {
-      case AuthType.Login:
-        result = await this.login(method, username);
-        return this.sendResponse(res, result);
-      case AuthType.Register:
-        result = await this.register(method, username);
-        return this.sendResponse(res, result);
-      default:
-        throw new UnauthorizedException();
-    }
-  }
 
-  async login(method: AuthMethod, username: string) {
-    const validUsername = await this.usernameValidator(method, username);
-    const user: User = await this.checkExistUser(method, validUsername);
-    if (!user) throw new UnauthorizedException(AuthMessage.NotFoundAccount);
-    const otp = await this.saveOtp(user.id);
-    otp.userId = user.id;
-    const token = this.tokenService.createOtpToken({ UserId: user.id });
-    return { code: otp.code, token };
-  }
+  async sendOtp(data: SendOtpDto) {
+    const existingOtp = await this.otpRepository.findByPhone(data.phone);
 
-  async register(method: AuthMethod, username: string) {
-    const validUsername = await this.usernameValidator(method, username);
-    let user: User = await this.checkExistUser(method, validUsername);
-    const randomUsername: string = `m_${Date.now()}`;
-    if (user) throw new ConflictException(AuthMessage.AlreadyExistAccount);
-    if (method === AuthMethod.Username) {
-      throw new BadRequestException(BadRequestMessage.InvalidRegisterData);
+    console.log(existingOtp);
+    if (
+      existingOtp &&
+      existingOtp.createdAt > new Date(Date.now() - 2 * 60 * 1000)
+    ) {
+      // TODO: add messages
+      throw new BadRequestException('retry latter.');
     }
-    user = await this.databaseService.user.create({
-      data: { [method]: username, username: randomUsername },
+
+    const code = Math.floor(Math.random() * 90000) + 10000;
+    const TWO_MINUTES = 2 * 60 * 1000;
+
+    const otp = await this.otpRepository.create({
+      code: String(code),
+      expiresIn: new Date(Date.now() + TWO_MINUTES),
+      isUsed: false,
+      phoneNumber: data.phone,
     });
-    const otp = await this.saveOtp(user.id);
-    otp.userId = user.id;
-    const token = this.tokenService.createOtpToken({ UserId: user.id });
-    return { code: otp.code, token };
+
+    //TODO send otp via sms
+    return otp.code;
   }
 
-  async sendResponse(res: Response, result: AuthResponse) {
-    const { token, code } = result;
-    res.cookie(CookieKeys.OTP, token, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 60 * 2),
+  async confirmOtp(data: CheckOtpDto) {
+    const dbOtp = await this.otpRepository.findLastOtp(
+      data.phoneNumber,
+      data.code,
+    );
+
+    if (!dbOtp || dbOtp.expiresIn < new Date()) {
+      throw new BadRequestException(AuthMessage.INVALID_OTP_CODE);
+    }
+
+    await this.otpRepository.update(dbOtp.id, { isUsed: true });
+
+    if (data.userType == AuthUserType.Guest) {
+
+      const user = await this.userRepository.findByPhone(data.phoneNumber);
+
+      if (user) {
+        return this.tokenService.createOtpToken({ UserId: user.id });
+      } else {
+        const user = await this.userRegister(data.phoneNumber);
+        return this.tokenService.createOtpToken({ UserId: user.id });
+      }
+    } else if (data.userType == AuthUserType.Agent) {
+
+      const agent = await this.agentRepository.findByPhone(data.phoneNumber);
+      if (agent) {
+        return this.tokenService.createOtpToken({ AgentId: agent.id });
+      } else {
+        const agent = await this.agentRegister(data.phoneNumber);
+        return this.tokenService.createOtpToken({ AgentId: agent.id });
+      }
+    }else throw new ServiceUnavailableException(ServerMessages.SERVICE_UNAVAILABLE)
+  }
+
+  private async userRegister(phoneNumber: string): Promise<User> {
+    return await this.userRepository.create({
+      phone: phoneNumber,
+      email: null,
+      firstname: null,
+      lastName: null,
     });
-    res.json({ message: PublicMessage.SentOtp, code });
   }
 
-  async saveOtp(userId: string) {
-    const code = randomInt(10000, 99999).toString();
-    const expiresIn = new Date(Date.now() + 1000 * 2 * 60);
-    let otp = await this.databaseService.otp.findFirst({ where: { userId } });
-    if (otp) {
-      otp.code = code;
-      otp.expiresIn = expiresIn;
-    } else {
-      otp = await this.databaseService.otp.create({
-        data: { code, expiresIn, userId },
-      });
-    }
-    // Send SMS or EMAIL for user
-    return otp;
-  }
-
-  async checkOtp(code: string) {
-    const token = this.request.cookies?.[CookieKeys.OTP];
-    console.log(token);
-    if (!token) {
-      throw new UnauthorizedException(AuthMessage.ExpiredCode);
-    }
-    return token;
-  }
-
-  async checkExistUser(method: AuthMethod, username: string) {
-    let user: User;
-    if (method === AuthMethod.Phone) {
-      user = await this.databaseService.user.findFirst({
-        where: { phone: username },
-      });
-    } else if (method === AuthMethod.Email) {
-      user = await this.databaseService.user.findFirst({
-        where: { email: username },
-      });
-    } else if (method === AuthMethod.Username) {
-      user = await this.databaseService.user.findFirst({
-        where: { username },
-      });
-    } else throw new BadRequestException(BadRequestMessage.InvalidLoginData);
-    return user;
-  }
-  async usernameValidator(method: AuthMethod, username: string) {
-    switch (method) {
-      case AuthMethod.Email:
-        if (isEmail(username)) return username;
-        throw new BadRequestException('email format is invalid');
-      case AuthMethod.Phone:
-        if (isPhoneNumber(username, 'IR')) return username;
-        throw new BadRequestException('phone number is invalid');
-      case AuthMethod.Username:
-        return username;
-      default:
-        throw new UnauthorizedException('username data is not valid');
-    }
+  private async agentRegister(phoneNumber: string): Promise<Agents> {
+    return await this.agentRepository.create({
+      phone: phoneNumber,
+      status : "NOT_VERIFIED",
+      name: null,
+      email: null,
+      facePic: null,
+      IDCardPicture: null,
+      nationalCode: null,
+      bio: null,
+      company: null,
+    });
   }
 }
